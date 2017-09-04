@@ -1,0 +1,21 @@
+# ignore
+nbproject/
+
+# ignore libraries
+*.a
+*.so
+*.so.*
+build/
+
+# ignore cmake files
+Makefile
+*CMakeFiles/
+*.cmake
+*.txt
+!CMakeLists.txt
+*.json
+
+#
+.*
+*swp
+!.git*

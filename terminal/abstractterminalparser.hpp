@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2017 Gregor Koporec <gregor.koporec@gmail.com>, University of Ljubljana
+ * Copyright (C) 2017 Janez Pers <janez.pers@fe.uni-lj.si>, University of Ljubljana
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef ABSTRACTTERMINALPARSER_HPP
+#define ABSTRACTTERMINALPARSER_HPP
+
+#include <vector>
+#include <string>
+#include <wordexp.h> // for expanding ~ to $HOME directory
+
+#include "exception.hpp"
+
+namespace gk{
+
+    class InvalidInputException : public gk::Exception {
+    public:
+        InvalidInputException(const string& className, const int lineNumber, const string& arg);
+    };
+    
+    class AbstractTerminalParser{
+    protected:
+        int majorVersion;
+        int minorVersion;
+        std::string expandName(std::string input);
+        std::vector<std::string> expandNames(std::vector<std::string> inputs);
+        
+        virtual void parseHelp() = 0;
+        
+    public:
+        AbstractTerminalParser(int majorVersion, int minorVersion);
+        virtual void parseInput() = 0;
+    };
+}
+
+#endif /* ABSTRACTTERMINALPARSER_HPP */
+
