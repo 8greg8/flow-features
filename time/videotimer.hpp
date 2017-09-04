@@ -45,7 +45,7 @@ namespace gk {
         double maxFps;
 
         double calculateCompletion();
-
+        
     public:
         VideoTimer(std::shared_ptr<VideoCapture> videoCapture, double timeToShowUser);
         VideoTimer(std::shared_ptr<VideoCapture> videoCapture, double timeToShowuser, double selectionSeconds);
