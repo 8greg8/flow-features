@@ -17,5 +17,5 @@
  */
 
 // the configured options and settings
-#define VERSION_MAJOR @SF2_VERSION_MAJOR@
-#define VERSION_MINOR @SF2_VERSION_MINOR@
+#define VERSION_MAJOR 2
+#define VERSION_MINOR 0

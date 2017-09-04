@@ -17,5 +17,5 @@
  */
 
 // the configured options and settings
-#define VERSION_MAJOR @OF_VERSION_MAJOR@
-#define VERSION_MINOR @OF_VERSION_MINOR@
+#define VERSION_MAJOR @OF2_VERSION_MAJOR@
+#define VERSION_MINOR @OF2_VERSION_MINOR@
