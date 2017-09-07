@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
 
         // For writing FLO
         if (floFile) {
-            if (f == floFile->getFrameNumber()) {
+            if ((f-1) == floFile->getFrameNumber()) {
                 floFile->write(dataBoxes[selected]->angle, dataBoxes[selected]->magnitude);
             }
         }

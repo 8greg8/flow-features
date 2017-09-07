@@ -277,7 +277,7 @@ int main(int argc, char** argv) {
         
         // For writing FLO
         if (floFile) {
-            if (i == floFile->getFrameNumber()) {
+            if ((i-1) == floFile->getFrameNumber()) {
                 if(!floFile->write(angle, magnitude)){
                     cerr << endl;
                     cerr << "Couldn't write .flo file!" << endl;
