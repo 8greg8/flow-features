@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 Before installing this software you need:
 
-* [OpenCV](http://opencv.org/) - OpenCV library >v3.1
+* [OpenCV](http://opencv.org/) - OpenCV library v3.1
   
   Must be compiled with contrib extra modules. Links:
     * [github - opencv](https://github.com/opencv/opencv) 
