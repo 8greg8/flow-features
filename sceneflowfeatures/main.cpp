@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     /// [Main loop Config]
     string imageFilename [2];
     string depthFilename [2];
-    ifstream file;
+    std::ifstream file;
 
     Mat angle, normalizedAngle, magnitude;
     std::shared_ptr<Rect2d> roi = NULL;

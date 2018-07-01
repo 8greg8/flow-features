@@ -19,7 +19,7 @@ Before installing this software you need:
     * [github - contrib](https://github.com/opencv/opencv_contrib)
 
 
-* [Boost](http://www.boost.org/) - Boost library >v1.53.0
+* [Boost](http://www.boost.org/) - Boost library v1.53.0
 * [CUDA]() - Cuda library >v7.5
 
 

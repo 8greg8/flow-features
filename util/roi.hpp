@@ -30,6 +30,8 @@
 
 #include "exception.hpp"
 
+#include <typeinfo>
+
 using namespace cv;
 using namespace std;
 

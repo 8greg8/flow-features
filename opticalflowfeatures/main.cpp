@@ -48,6 +48,7 @@
 #include "of2trackerfile.hpp"
 #include "flo.hpp"
 #include "amplitudefactor.hpp"
+#include "opticalflowvideo.hpp"
 
 using namespace cv;
 using namespace std;
@@ -63,6 +64,17 @@ Rect2d *selectedRoi = NULL;
 Rect2d roi;
 Mat frame, image;
 int drag = 0;
+
+static void printErrorHeader(int line) {
+    cerr << endl;
+    cerr << "File: " << __FILE__ << " line: " << line << endl;
+}
+
+static void printErrorFooter() {
+    cerr << "Aborting program..." << endl;
+    cerr << endl;
+    exit(EXIT_FAILURE);
+}
 
 static void calculateOpticalFlow(const UMat& uprevgray, const UMat& ugray,
         Mat& flow,
@@ -155,51 +167,6 @@ static void getPolarFlow(
     if (amplitudeFactor){
         amplitudeFactor->scale(flowMagnitude, roi);
     }
-}
-
-static void getOpticalFlowImage(const Mat& flowAngle, const Mat& flowMagnitude, Mat& opticalFlowImage) {
-    // Convert optical flow to HSV image
-    vector<Mat> hsvChannels;
-    Mat hChannel, vChannel;
-
-    // h channel 
-    // Convert 0..2*pi -> 0..1 because using CV_32F
-    normalize(flowAngle, hChannel, 0, 180, CV_MINMAX);
-    hsvChannels.push_back(hChannel);
-
-    // s channel
-    // Normalize to 0..1 because using CV_32F
-    normalize(flowMagnitude, vChannel, 0, 255, CV_MINMAX);
-    hsvChannels.push_back(vChannel);
-
-    // v channel
-    // Channel is black so all ones because using CV_32F
-    hsvChannels.push_back(Mat(hChannel.rows, hChannel.cols, CV_32FC1, 255));
-
-    // Merge channels to image
-    Mat hsvImage, hsvImage_8bit;
-    //cout << hsvChannels[0].depth() << " " << hsvChannels[1].depth() << " " << hsvChannels[2].depth() << endl;
-    merge(hsvChannels, hsvImage);
-    hsvImage.convertTo(hsvImage_8bit, CV_8UC3);
-
-    // Convert HSV to BGR image
-    cvtColor(hsvImage_8bit, opticalFlowImage, CV_HSV2BGR);
-}
-
-static void getOpticalFlowFrame(const Mat& opticalFlowImage, Mat& opticalFlowFrame, const Size& videoSize) {
-    // If size is not the same 
-    // make new empty white video frame 
-    // and add optical flow to the middle of frame.
-    opticalFlowFrame = Mat::zeros(videoSize.height, videoSize.width, opticalFlowImage.type());
-    int xPosition = cvRound(videoSize.width / 2.0 - opticalFlowImage.cols / 2.0);
-    int yPosition = cvRound(videoSize.height / 2.0 - opticalFlowImage.rows / 2.0);
-
-    opticalFlowImage.copyTo(
-            opticalFlowFrame(
-            Rect(xPosition, yPosition, opticalFlowImage.cols, opticalFlowImage.rows)
-            )
-            );
-
 }
 
 static void onMouseEvent(int event, int x, int y, int flags, void* param) {
@@ -356,22 +323,13 @@ int main(int argc, char** argv) {
         //cornerSubPix(gray, points[1], subPixWinSize, Size(-1,-1), termcrit);
     }
 
-    VideoWriter opticalFlowVideoWriter;
+    std::shared_ptr<OpticalFlowVideo> opticalFlowVideoWriter = NULL;
     if (terminalParser.getOpticalFlowConfig()->needVideo) {
-        opticalFlowVideoWriter.open(
+        opticalFlowVideoWriter = std::make_shared<OpticalFlowVideo>(
                 terminalParser.getOpticalFlowConfig()->outVideo,
                 codecNum,
                 fps,
-                videoSize,
-                true);
-
-        if (!opticalFlowVideoWriter.isOpened()) {
-            cout << endl;
-            cout << "Could not open the output video for write: "
-                    << terminalParser.getOpticalFlowConfig()->outVideo << endl;
-            cout << "Terminating..." << endl;
-            return -1;
-        }
+                videoSize);
 
         UserInteraction::printVideoProperties(videoSize, codecNum, fps, 0,
                 terminalParser.getOpticalFlowConfig()->outVideo);
@@ -476,7 +434,7 @@ int main(int argc, char** argv) {
 
                 if (terminalParser.trackerFromFile()) {
                     roi = *trackerFile->getNext();
-                    if (roi.area() > 0) {
+                    if (Roi::isEmpty(roi)) {
                         cout << endl;
                         cerr << "Couldn't read a line. " << "Roi will be empty." << endl;
                         // Roi should be empty.
@@ -674,7 +632,7 @@ int main(int argc, char** argv) {
             if (terminalParser.isImageNeeded() && frameNumber == terminalParser.getFrameNumber()) {
                 imwrite(terminalParser.getOriginalImageFilename(), frame);
 
-                getOpticalFlowImage(flowAngle, flowMagnitude, opticalFlowImage);
+                opticalFlowVideoWriter->getImage(flowAngle, flowMagnitude, opticalFlowImage);
                 imwrite(
                         terminalParser.getOpticalFlowConfig()->outVideo,
                         opticalFlowImage);
@@ -682,13 +640,13 @@ int main(int argc, char** argv) {
 
             // For writing optical flow video
             if (terminalParser.getOpticalFlowConfig()->needVideo) {
-                getOpticalFlowImage(flowAngle, flowMagnitude, opticalFlowImage);
-                if (opticalFlowImage.cols == videoSize.width && opticalFlowImage.rows == videoSize.height) {
-                    opticalFlowVideoWriter << opticalFlowImage;
-
+                if (opticalFlowVideoWriter) {
+                    opticalFlowVideoWriter->write(flowAngle, flowMagnitude);
                 } else {
-                    getOpticalFlowFrame(opticalFlowImage, opticalFlowFrame, videoSize);
-                    opticalFlowVideoWriter << opticalFlowFrame;
+                    printErrorHeader(__LINE__);
+                    cerr << "No video writer for optical flow!" << endl;
+                    printErrorFooter();
+
                 }
             }
 
@@ -699,7 +657,16 @@ int main(int argc, char** argv) {
                     changeDisplayWindowImageFlow = true;
                 }
                 if (changeDisplayWindowImageFlow) {
-                    getOpticalFlowImage(flowAngle, flowMagnitude, opticalFlowImage);
+                    if (opticalFlowVideoWriter) {
+                        opticalFlowVideoWriter->getImage(flowAngle, flowMagnitude, opticalFlowImage);
+                        opticalFlowVideoWriter->getFrame(opticalFlowImage, opticalFlowFrame);
+                    } else {
+                        opticalFlowFrame = Mat::zeros(videoSize, CV_8UC3);
+                        printErrorHeader(__LINE__);
+                        cerr << "No optical flow video writer!" << endl;
+                        cerr << "Output image on DISPLAY WINDOW will be empty!" << endl;
+                    }
+                    
                     imshow(DISPLAY_WINDOW_FLOW, opticalFlowImage);
                     int key = waitKey(1);
                     switch ((char) key) {
