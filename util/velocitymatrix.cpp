@@ -171,6 +171,7 @@ void VelocityMatrix::getSemiSpherical(Mat& angle, Mat& magnitude) {
     }
 }
 
+#ifdef DEBUG
 void VelocityMatrix::showVelocityDebug(){
     // Norm to max element.
     Mat debug = velocity.clone();
@@ -203,3 +204,4 @@ void VelocityMatrix::showVelocityDebug(){
     cv::waitKey(0);
     cv::destroyWindow("Debug");
 }
+#endif

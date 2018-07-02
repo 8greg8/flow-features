@@ -63,8 +63,9 @@ namespace gk{
 
         void cropVelocityMatrix(const Rect2d& roi);
         void getSemiSpherical(Mat& angle, Mat& magnitude);
+#ifdef DEBUG
         void showVelocityDebug();
-        
+#endif
     private:
         string filename;
         std::ifstream in;

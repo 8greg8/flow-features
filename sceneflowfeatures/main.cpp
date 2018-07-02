@@ -37,11 +37,12 @@
 #include "velocitymatrix.hpp"
 #include "opticalflowvideo.hpp"
 #include "framespeed.hpp"
+#include "basetimer.hpp"
 
 #include "scene_flow_impair.h"
 #include "flofile.hpp"
 #include "config.hpp"
-
+        
 using namespace std;
 using namespace gk;
 using namespace cv;
@@ -135,11 +136,13 @@ int main(int argc, char** argv) {
     
     
     
-    
+    BaseTimer timer(1.0);
+    timer.start();
     
     /// [Main loop]
     //string rowPixelString, colPixelString, vxString, vyString, vzString;
-    for(int i= terminalParser.flowArg.startFrame;; i++){
+    // Start i for second sequence (from image 1,2,3... instead of 0,1,2,...)
+    for(int i= terminalParser.flowArg.startFrame + 1;; i++){
         
         // Get next filenames and times
         for(int j=0; j<2; j++){
@@ -203,7 +206,7 @@ int main(int argc, char** argv) {
         }
         
         // Init video writer
-        if (!terminalParser.videoFilename.empty() && i == terminalParser.flowArg.startFrame) {
+        if (!terminalParser.videoFilename.empty() && (i - 1) == terminalParser.flowArg.startFrame) {
             int fourcc = CV_FOURCC('M', 'J', 'P', 'G');
             videoWriter = new OpticalFlowVideo(terminalParser.videoFilename, fourcc, 30, matrixSize);
         }
@@ -227,7 +230,9 @@ int main(int argc, char** argv) {
         if (confident) {
             if (trackerFile) {
                 velocityMatrix->cropVelocityMatrix(*roi);
+#ifdef DEBUG
                 //velocityMatrix->showVelocityDebug();
+#endif
             }
             try{
                 velocityMatrix->getSemiSpherical(angle, magnitude);
@@ -286,6 +291,9 @@ int main(int argc, char** argv) {
             }
         }
         
+        //
+        
+        // Write video
         if(videoWriter){
             videoWriter->write(angle, magnitude);
         }
@@ -298,6 +306,15 @@ int main(int argc, char** argv) {
                 cout << "The last opened file number was: " << imageInputSequence[1]->getFrameNumber() - 1 << endl;
                 break;
             }     
+        }
+        
+        
+        
+        // Show % for user
+        if (timer.isTimeToShowOutput()) {
+            //elapsedTime = timer.getElapsedTime();
+            printf("\rFrame: %d\tElapsed: %s", i, timer.getElapsedTime()->c_str());
+            fflush(stdout);
         }
     }
     /// [Main loop]

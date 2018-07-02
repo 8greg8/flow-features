@@ -91,11 +91,21 @@ void OpticalFlowVideo::write(const Mat& flowAngle, const Mat& flowMagnitude){
         getImage(flowAngle, flowMagnitude, image);
 
         if (image.cols == frameSize.width && image.rows == frameSize.height) {
+#ifdef DEBUG
+            cv::imshow("Debug", image);
+            cv::waitKey(0);
+            cv::destroyWindow("Debug");
+#endif      
             videoWriter << image;
 
         } else {
             Mat frame;
             getFrame(image, frame);
+#ifdef DEBUG
+            cv::imshow("Debug", frame);
+            cv::waitKey(0);
+            cv::destroyWindow("Debug");
+#endif 
             videoWriter << frame;
         }   
     } else{

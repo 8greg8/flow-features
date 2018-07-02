@@ -389,7 +389,7 @@ int main(int argc, char** argv) {
             cout << "=======================" << endl;
             break;
         }
-        frameNumber = videoCapture->get(CAP_PROP_POS_FRAMES); // 0-based index
+        frameNumber = videoCapture->get(CAP_PROP_POS_FRAMES) + 1; // 0-based index
 
         // Get gray frame for optical flow calculation
         if (frame.empty()) {
@@ -408,7 +408,7 @@ int main(int argc, char** argv) {
             cerr << "Frame " << frameNumber
                     << " has oddly number of channels. Histograms will be empty. " << endl;
             cerr << "Skipping this frame..." << endl;
-            if (frameNumber > 0) {
+            if (frameNumber > 1) {
                 
                 if(histogramDescriptor){
                     fill(normalizedHistogram.begin(), normalizedHistogram.end(), 0);
@@ -618,7 +618,7 @@ int main(int argc, char** argv) {
         }
 
         // If we read more than one frame
-        if (frameNumber > 0) {
+        if (frameNumber > 1) {
             // For saving flo file
             flo = terminalParser.getFlo();
             if (flo && frameNumber == flo->getFloFrameNumber()) {

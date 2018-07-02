@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
     vector<bool> videosEnd;
     
     
-    for (int f = 0;; f++) {     
+    for (int f = 1;; f++) {     
         
         for(auto dataBox : dataBoxes){
             if(!dataBox->update()){
@@ -190,7 +190,7 @@ int main(int argc, char** argv) {
         
  
         
-        if(f > 0){
+        if(f > 1){
             selected = cameraSelector.select(metricCenters);
 
 
@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
         
 
         // If we read more than one frame
-        if (f > 0) {
+        if (f > 1) {
             // For writing FLO
             if (floFile) {
                 if(f == floFile->getFrameNumber()){

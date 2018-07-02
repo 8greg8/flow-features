@@ -27,9 +27,9 @@ FloFile::FloFile(string floFilename, long floFrameCount)
     flowFrameNumber = floFrameCount - 1; // We cannot get flo for first frame
 }
 
-int FloFile::getFrameNumber() const{
+/*int FloFile::getFrameNumber() const{
     return flowFrameNumber;
-}
+}*/
 
 bool FloFile::write(const cv::Mat& angle, const cv::Mat& magnitude){
     cv::Size size = magnitude.size();

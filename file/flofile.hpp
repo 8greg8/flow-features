@@ -39,7 +39,7 @@ namespace gk{
     public:
         FloFile(std::string floFilename, long floFrameCount);
         
-        int getFrameNumber() const override;
+        //int getFrameNumber() const override;
         bool write(const cv::Mat& angle, const cv::Mat& magnitude);
     };
 }
