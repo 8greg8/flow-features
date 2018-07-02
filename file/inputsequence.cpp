@@ -35,6 +35,7 @@ InputSequence::InputSequence(const string& basename, const long startFrame,
     }else{
         this->frameCount = startFrame;
     }
+    this->frameNumber = this->frameCount;
 }
 
 bool InputSequence::sequenceEnabled() const{

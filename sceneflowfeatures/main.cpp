@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
     /// [Main loop]
     //string rowPixelString, colPixelString, vxString, vyString, vzString;
     // Start i for second sequence (from image 1,2,3... instead of 0,1,2,...)
-    for(int i= terminalParser.flowArg.startFrame + 1;; i++){
+    for(int i= terminalParser.flowArg.startFrame ;; i++){
         
         // Get next filenames and times
         for(int j=0; j<2; j++){
@@ -206,7 +206,7 @@ int main(int argc, char** argv) {
         }
         
         // Init video writer
-        if (!terminalParser.videoFilename.empty() && (i - 1) == terminalParser.flowArg.startFrame) {
+        if (!terminalParser.videoFilename.empty() && i == terminalParser.flowArg.startFrame) {
             int fourcc = CV_FOURCC('M', 'J', 'P', 'G');
             videoWriter = new OpticalFlowVideo(terminalParser.videoFilename, fourcc, 30, matrixSize);
         }

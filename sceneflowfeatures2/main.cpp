@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
 
     /// [Main loop]
     // Start f for second sequence (from image 1,2,3... instead of 0,1,2,...)
-    for (int f = terminalParser.startFrame + 1;; f++) {
+    for (int f = terminalParser.startFrame;; f++) {
 
         // Get next filenames and times
         for (auto dataBox : dataBoxes) {
@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
 
 
         // Init video writer
-        if ((terminalParser.sceneFlowData.needVideo && f - 1 == terminalParser.startFrame) || terminalParser.sceneFlowData.displayFlow) {
+        if ((terminalParser.sceneFlowData.needVideo && f == terminalParser.startFrame) || terminalParser.sceneFlowData.displayFlow) {
             int fourcc = CV_FOURCC('M', 'J', 'P', 'G');
             videoWriter = std::make_shared<OpticalFlowVideo>(terminalParser.sceneFlowData.outVideo, fourcc, 30, dataBoxes[selected]->matrixSize);
         }
